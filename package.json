@@ -1,0 +1,25 @@
+{
+  "name": "ctf",
+  "version": "0.0.1",
+  "description": "capture the flag",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/montagist/ctfgame.git"
+  },
+  "author": "montagist@nucleint.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/montagist/ctfgame/issues"
+  },
+  "homepage": "https://github.com/montagist/ctfgame#readme",
+  "dependencies": {
+    "chance": "^1.0.0",
+    "colors": "^1.1.2",
+    "prompt": "^1.0.0",
+    "underscore": "^1.8.3"
+  }
+}

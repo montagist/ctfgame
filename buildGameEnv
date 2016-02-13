@@ -1,0 +1,83 @@
+#!/usr/bin/env Node
+
+var _ = require( "underscore" );
+var fs = require( "fs" );
+var prompt = require( "prompt" );
+var chance = require( "chance" );
+var colors = require( "colors/safe" );
+
+prompt.message = "";
+prompt.delimiter = ":";  
+prompt.start();
+
+var defaultConfig = {
+	
+	playerCount: 2,
+	serverCount: 5
+}
+
+var resolvedConfig = {};
+
+
+var promptConfig = [ {
+	
+	name: "playerCount",
+	type: "integer",
+	description: "Number of players",
+	message: "Entry must be a number",
+	default: 2
+	
+}, {
+	
+	name: "serverCount",
+	type: "integer",
+	description: "Number of servers/boxes per player",
+	message: "Entry must be a number",
+	default: 5	
+} ];
+
+
+prompt.get( promptConfig, function ( err, result ) {
+
+	if (err) { return onErr(err); }
+
+	console.log( result );
+	
+	resolvedConfig = _.extend( defaultConfig, result );
+	
+	buildVagrantFile( buildBoxList( resolvedConfig ) );
+});
+
+
+function buildBoxList( config ) {
+	
+	var boxesList = [];
+	
+	for ( var playerInd = 0; playerInd < config.playerCount; playerInd++ ) {
+		
+		for ( var boxInd = 0; boxInd < config.serverCount; boxInd++ ) {
+		
+			var boxName = "player" + ( playerInd +1 ) + "box" + ( boxInd + 1);
+			
+			boxesList.push( { name: boxName } );
+		}
+	}
+
+	return boxesList;
+}
+
+
+function buildVagrantFile( boxesList ) {
+	
+	var vagrantFileTmpl = fs.readFileSync( "VagrantFile.tpl", "utf8");
+	
+	var vagrantTmpl = _.template( vagrantFileTmpl );
+	
+	fs.writeFileSync( "VagrantFile", vagrantTmpl( { boxesList: boxesList } ), 'utf8');
+}
+
+function onErr(err) {
+
+	console.log(err);
+	return 1;
+}

@@ -5,6 +5,9 @@ sudo apt-get --yes --force-yes install easy-rsa
 cat vpn_networking.part >> /etc/network/interfaces
 sudo /etc/init.d/networking restart
 
+# https://help.ubuntu.com/community/OpenVPN
+# https://openvpn.net/index.php/open-source/documentation/howto.html#numbering
+
 sudo su
 cd /usr/share/easy-rsa 
 rmdir keys
