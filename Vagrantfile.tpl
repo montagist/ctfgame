@@ -4,16 +4,16 @@ Vagrant.configure("2") do |config|
     vpn.vm.box = "ubuntu/trusty64"
     vpn.vm.hostname = "vaguebox-vpn"
     vpn.vm.network "public_network", bridge: "en0"
-    vpn.vm.network "private_network", ip: "192.168.50.0",
-      virtualbox__intnet: true
+    vpn.vm.network :private_network, ip: "192.168.50.0", netmask: "255.0.0.0", 
+      virtualbox__intnet: "ctfgameint"
   end
 
   <% _.each( boxesList, function( ctfBox ) { %> 
   config.vm.define "<%= ctfBox.name %>" do |<%= ctfBox.name %>|
     <%= ctfBox.name %>.vm.box = "ubuntu/trusty64"
     <%= ctfBox.name %>.vm.hostname = "<%= ctfBox.name %>"
-    <%= ctfBox.name %>.vm.network "private_network", ip: "<%= ctfBox.ip %>",
-      virtualbox__intnet: true
+    <%= ctfBox.name %>.vm.network :private_network, ip: "<%= ctfBox.ip %>", netmask: "255.0.0.0", 
+      virtualbox__intnet: "ctfgameint"
   end 
   <% } ); %>
 

@@ -117,7 +117,7 @@ function buildBoxList( config, ipAddresses ) {
 		
 			var boxName = "player" + ( playerInd +1 ) + "box" + ( boxInd + 1);
 			
-			boxesList.push( { name: boxName, ip: ipAddresses[ ipInd ] } );
+			boxesList.push( { name: boxName, ip: ipAddresses[ ipInd ] + "/8" } );
 			
 			ipInd++;
 		}
