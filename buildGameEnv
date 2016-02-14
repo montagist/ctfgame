@@ -17,14 +17,11 @@ var privIpRanges = {
 
 function enumerateIpRange( startAddress, spaceLength, num2Select ) {
 	
-	var ipRange = [];
-	
-	var baseIp = new Address4( startAddress ),
+	var ipRange = [],
+		baseIp = new Address4( startAddress ),
 		baseHex = baseIp.toHex().replace( /:/g, "" ),
 		rangeSampling = reservoirSample( spaceLength, num2Select );
 		
-	console.log( rangeSampling );
-	
 	_.each( rangeSampling, function( numInRange ) {
 		
 		ipRange.push( Address4.fromHex( ( parseInt( "0x" + baseHex ) + numInRange ).toString( 16 ) ).correctForm() );
@@ -63,12 +60,6 @@ prompt.message = "";
 prompt.delimiter = ":";  
 prompt.start();
 
-var defaultConfig = {
-	
-	playerCount: 2,
-	serverCount: 5
-}
-
 var resolvedConfig = {};
 
 
@@ -94,15 +85,12 @@ prompt.get( promptConfig, function ( err, result ) {
 
 	if (err) { return onErr(err); }
 
-	console.log( result );
-	
-	resolvedConfig = _.extend( defaultConfig, result );
-	
 	var totalServerCount = result.playerCount * result.serverCount;
 	
 	var randIps = enumerateIpRange( "10.0.0.0", 16777216, totalServerCount );
 	
-	buildVagrantFile( buildBoxList( resolvedConfig, randIps ) );
+	buildConfig( buildBoxList( result, randIps ) );
+
 });
 
 
@@ -127,13 +115,17 @@ function buildBoxList( config, ipAddresses ) {
 }
 
 
-function buildVagrantFile( boxesList ) {
+function buildConfig( boxesList ) {
 	
 	var vagrantFileTmpl = fs.readFileSync( "VagrantFile.tpl", "utf8");
 	
 	var vagrantTmpl = _.template( vagrantFileTmpl );
 	
 	fs.writeFileSync( "VagrantFile", vagrantTmpl( { boxesList: boxesList } ), 'utf8');
+	
+	var configCertauthTpl = fs.readFileSync( "config_certauth.tpl", "utf8");
+	
+	fs.writeFileSync( "config_certauth.sh", configCertauthTpl + "\n./build-key --batch montagist", 'utf8');
 }
 
 function onErr(err) {
