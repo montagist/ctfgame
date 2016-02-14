@@ -5,6 +5,59 @@ var fs = require( "fs" );
 var prompt = require( "prompt" );
 var chance = require( "chance" );
 var colors = require( "colors/safe" );
+var Address4 = require( "ip-address" ).Address4;
+
+
+var privIpRanges = {
+	
+	"10.0.0.0": 16777216,
+	"172.16.0.0": 1048576,
+	"192.168.0.0": 65536
+}
+
+function enumerateIpRange( startAddress, spaceLength, num2Select ) {
+	
+	var ipRange = [];
+	
+	var baseIp = new Address4( startAddress ),
+		baseHex = baseIp.toHex().replace( /:/g, "" ),
+		rangeSampling = reservoirSample( spaceLength, num2Select );
+		
+	console.log( rangeSampling );
+	
+	_.each( rangeSampling, function( numInRange ) {
+		
+		ipRange.push( Address4.fromHex( ( parseInt( "0x" + baseHex ) + numInRange ).toString( 16 ) ).correctForm() );
+	} );
+		
+	return ipRange;
+}
+
+/*
+	S has items to sample, R will contain the result
+	S[1..n], R[1..k]
+*/
+
+function reservoirSample( n, k ) {
+	
+	var r = {};
+	
+	// fill the reservoir array
+	for ( var i = 1; i < k; i++ )
+		r[i] = i;
+
+	// replace elements with gradually decreasing probability
+	for ( var i = k+1; i < n; i++ ) {
+    
+		var j = Math.floor((Math.random() * i) + 1);		// important: inclusive range
+
+		if ( j <= k )
+			r[j] = i;
+	}
+	
+	return r;
+}
+
 
 prompt.message = "";
 prompt.delimiter = ":";  
@@ -45,13 +98,18 @@ prompt.get( promptConfig, function ( err, result ) {
 	
 	resolvedConfig = _.extend( defaultConfig, result );
 	
-	buildVagrantFile( buildBoxList( resolvedConfig ) );
+	var totalServerCount = result.playerCount * result.serverCount;
+	
+	var randIps = enumerateIpRange( "10.0.0.0", 16777216, totalServerCount );
+	
+	buildVagrantFile( buildBoxList( resolvedConfig, randIps ) );
 });
 
 
-function buildBoxList( config ) {
+function buildBoxList( config, ipAddresses ) {
 	
-	var boxesList = [];
+	var boxesList = [],
+		ipInd = 0;
 	
 	for ( var playerInd = 0; playerInd < config.playerCount; playerInd++ ) {
 		
@@ -59,7 +117,9 @@ function buildBoxList( config ) {
 		
 			var boxName = "player" + ( playerInd +1 ) + "box" + ( boxInd + 1);
 			
-			boxesList.push( { name: boxName } );
+			boxesList.push( { name: boxName, ip: ipAddresses[ ipInd ] } );
+			
+			ipInd++;
 		}
 	}
 
