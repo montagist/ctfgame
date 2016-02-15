@@ -89,7 +89,9 @@ prompt.get( promptConfig, function ( err, result ) {
 	
 	var randIps = enumerateIpRange( "10.0.0.0", 16777216, totalServerCount );
 	
-	buildConfig( buildBoxList( result, randIps ) );
+	var confLists = buildBoxList( result, randIps );
+	
+	buildConfig( confLists );
 
 });
 
@@ -97,9 +99,12 @@ prompt.get( promptConfig, function ( err, result ) {
 function buildBoxList( config, ipAddresses ) {
 	
 	var boxesList = [],
+		playerList = [],
 		ipInd = 0;
 	
 	for ( var playerInd = 0; playerInd < config.playerCount; playerInd++ ) {
+		
+		playerList.push( "player" + ( playerInd +1 ) );
 		
 		for ( var boxInd = 0; boxInd < config.serverCount; boxInd++ ) {
 		
@@ -111,21 +116,19 @@ function buildBoxList( config, ipAddresses ) {
 		}
 	}
 
-	return boxesList;
+	return { boxesList: boxesList, playerList: playerList};
 }
 
 
-function buildConfig( boxesList ) {
+function buildConfig( confLists ) {
 	
-	var vagrantFileTmpl = fs.readFileSync( "VagrantFile.tpl", "utf8");
+	var vagrantTmpl = _.template( fs.readFileSync( "VagrantFile.tpl", "utf8") );
 	
-	var vagrantTmpl = _.template( vagrantFileTmpl );
+	fs.writeFileSync( "VagrantFile", vagrantTmpl( { boxesList: confLists.boxesList } ), 'utf8');
 	
-	fs.writeFileSync( "VagrantFile", vagrantTmpl( { boxesList: boxesList } ), 'utf8');
+	var configCertauthTmpl = _.template( fs.readFileSync( "config_certauth.tpl", "utf8" ) );
 	
-	var configCertauthTpl = fs.readFileSync( "config_certauth.tpl", "utf8");
-	
-	fs.writeFileSync( "config_certauth.sh", configCertauthTpl + "\n./build-key --batch montagist", 'utf8');
+	fs.writeFileSync( "config_certauth.sh", configCertauthTmpl( { playerList: confLists.playerList } ), 'utf8');
 }
 
 function onErr(err) {

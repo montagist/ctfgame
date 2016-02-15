@@ -14,3 +14,7 @@ source ./vars
 ./pkitool --initca
 ./build-key-server --batch server
 
+<% _.each( playerList, function( player ) { %>
+./build-key --batch <%= player %><% } ); %>
+
+openvpn /home/vagrant/vpnserv.conf
