@@ -7,10 +7,11 @@ Vagrant.configure("2") do |config|
     vpn.vm.network :private_network, ip: "192.168.50.0", netmask: "255.0.0.0", 
       virtualbox__intnet: "ctfgameint"
     vpn.vm.network "forwarded_port", guest: 1194, host: 1194
-    vpn.vm.provision "file", source: "./vpn_networking.part", destination: "vpn_networking.part"
-    vpn.vm.provision "file", source: "./vpnserv.conf", destination: "vpnserv.conf"
-    vpn.vm.provision "file", source: "./bridge-start.sh", destination: "bridge-start.sh"
-    vpn.vm.provision "shell", path: "config_certauth.sh"
+    vpn.vm.provision "file", source: "./scripts/vpn_networking.part", destination: "vpn_networking.part"
+    vpn.vm.provision "file", source: "./scripts/vpnserv.conf", destination: "vpnserv.conf"
+    vpn.vm.provision "file", source: "./scripts/bridge-start.sh", destination: "bridge-start.sh"
+    vpn.vm.provision "file", source: "./scripts/install_scorebot_env.sh", destination: "install_scorebot_env.sh"
+    vpn.vm.provision "shell", path: "install_scorebot_env.sh && config_certauth.sh"
     vpn.trigger.after :up do
     	run "pkgkeys.sh"
 	end
