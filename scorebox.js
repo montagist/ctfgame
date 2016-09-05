@@ -21,14 +21,12 @@ var gameConf = { port: 3000,
 
 function Scorebox() {
 
-	// game workers
-	var workers = [
-		'Chronix.js'
-	];
-
 	// infra
 	this.dbClient = null;
 	this.server = null;
+
+	// game workers
+	this.workers = [ 'Chronix.js' ];
 	
 	// domain
 	this.hashKey2Player = {};

@@ -131,6 +131,12 @@ function buildConfig( confLists ) {
 	fs.writeFileSync( "config_certauth.sh", configCertauthTmpl( { playerList: confLists.playerList } ), 'utf8');
 }
 
+function hashPlayerKeys() {
+	
+	// Randomly select hashing algorithm
+	// Randomly select # of hashings
+}
+
 function onErr(err) {
 
 	console.log(err);
