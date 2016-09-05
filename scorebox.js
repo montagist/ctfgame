@@ -3,6 +3,7 @@ var async = require('async');
 
 var bragi = require('bragi');
 var logger = { log: _.partial( bragi.log, "scorebox" ) };
+var forkie = require('forkie');
 var MongoClient = require('mongodb').MongoClient
 var hapi = require('hapi');
 var joi = require('joi');
@@ -19,6 +20,11 @@ var gameConf = { port: 3000,
 				 db: "ctfgame" };
 
 function Scorebox() {
+
+	// game workers
+	var workers = [
+		'Chronix.js'
+	];
 
 	// infra
 	this.dbClient = null;
