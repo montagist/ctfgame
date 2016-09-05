@@ -59,18 +59,19 @@ function Scorebox() {
 		var beaconHandlerConf = {
 			method: [ 'PUT', 'POST' ],
 			path: '/game/beacon',
+			handler: _.bind( this.beaconHandler, this ),
 			config: {
-				handler: _.bind( this.beaconHandler, this ),
-				validate: { payload: { playerKey: joi.string().required() } }
+				validate: { payload: joi.object( { 'playerKey': joi.string().required() } ).options({ allowUnknown: true }) }
 			}
 		};
 		
 		var flagHandlerConf = {
 			method: 'PUT',
 			path: '/game/players/flag',
+			handler: _.bind( this.flagHandler, this ),
 			config: {
-				handler: _.bind( this.flagHandler, this ),
-				validate: { payload: { flagId: joi.string().required() } }
+				validate: { payload: joi.object( { 'playerKey': joi.string().required(),
+												   'flagId': joi.string().required() } ).options({ allowUnknown: true }) }
 			}
 		};
 		
@@ -134,9 +135,7 @@ function Scorebox() {
 				
 				if ( thePlayer.claims( theFlag ) ) {
 					
-					reply( { flagId: theFlag.id,
-							 claimedBy: thePlayer.id,
-							 claimedOn: theFlag.claimedOn } ).code( 200 );
+					reply( theFlag ).code( 200 );
 					
 				} else {
 				

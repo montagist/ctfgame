@@ -10,7 +10,7 @@ module.exports = {
 				playerKey = parseInt( playerKey );
 
 		} else {
-			
+
 			finCallback( "No playerKey specified!", null );
 			return;
 		}
