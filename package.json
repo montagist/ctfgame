@@ -17,10 +17,17 @@
   },
   "homepage": "https://github.com/montagist/ctfgame#readme",
   "dependencies": {
+    "async": "^2.0.1",
+    "bragi": "^0.1.3",
     "chance": "^1.0.0",
     "colors": "^1.1.2",
+    "express": "^4.14.0",
+    "hapi": "^15.0.3",
     "ip-address": "^5.8.0",
-    "prompt": "^1.0.0",
-    "underscore": "^1.8.3"
+    "joi": "^9.0.4",
+    "lodash": "^4.15.0",
+    "mongodb": "^2.2.9",
+    "node-uuid": "^1.4.7",
+    "prompt": "^1.0.0"
   }
 }
