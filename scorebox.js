@@ -2,7 +2,8 @@ var _ = require('lodash');
 var async = require('async');
 
 var bragi = require('bragi');
-var logger = { log: _.partial( bragi.log, "scorebox" ) };
+var logger = { log: _.partial( bragi.log, "gamebox" ),
+			   ipc: _.partial( bragi.log, "workers" ) };
 var forkie = require('forkie');
 var MongoClient = require('mongodb').MongoClient
 var hapi = require('hapi');
@@ -14,28 +15,25 @@ var Flag = require('./Flag');
 
 bragi.transports.get('Console').property({ showMeta: false });
 
-logger.log( bragi.util.print( bragi.util.print( "Scorebox booting up ", "yellow" ) ) + bragi.util.symbols.success );
+logger.log( bragi.util.print( bragi.util.print( "Gamebox booting up ", "yellow" ) ) + bragi.util.symbols.success );
 
-var gameConf = { port: 3000,
-				 db: "ctfgame" };
+var gameConf = require('./config');
 
-function Scorebox() {
+function Gamebox() {
 
 	// infra
 	this.dbClient = null;
 	this.server = null;
+	this.nerve = null;
 
 	// game workers
-	this.workers = [ 'Chronix.js' ];
+	this.workers = [ 'Scorpix.js',
+					 'Chronix.js' ];
 	
 	// domain
 	this.hashKey2Player = {};
 	
-	this.hashPlayerKeys = function() {
-		
-		// Randomly select hashing algorithm
-		// Randomly select # of hashings
-	}
+	this.logIPC = function( msg ) { logger.ipc( msg.title + " " + msg.status ); }
 
 	///////////////////////////
 	// Bootstrapping services
@@ -43,159 +41,53 @@ function Scorebox() {
 	
 	this.setupDB = function( finCallback ) {
 		
-		var scoreBox = this,
+		var gamebox = this,
 			url = 'mongodb://localhost:27017/' + gameConf.db;
 		
 		MongoClient.connect( url, function( err, db ) {
 			
-			scoreBox.dbClient = db;
+			gamebox.dbClient = db;
 			finCallback.apply( this, arguments );
 		});
 	}
 	
-	this.setupServer = function( finCallback ) {
-		
-		var scoreBox = this,
-			scoreBoxServer = new hapi.Server();
-		
-		scoreBoxServer.connection( { port: gameConf.port } );;
-			
-		var beaconHandlerConf = {
-			method: [ 'PUT', 'POST' ],
-			path: '/game/beacon',
-			handler: _.bind( this.beaconHandler, this ),
-			config: {
-				validate: { payload: joi.object( { 'playerKey': joi.string().required() } ).options({ allowUnknown: true }) }
-			}
-		};
-		
-		var flagHandlerConf = {
-			method: 'PUT',
-			path: '/game/players/flag',
-			handler: _.bind( this.flagHandler, this ),
-			config: {
-				validate: { payload: joi.object( { 'playerKey': joi.string().required(),
-												   'flagId': joi.string().required() } ).options({ allowUnknown: true }) }
-			}
-		};
-		
-		scoreBoxServer.route( [ beaconHandlerConf,
-								flagHandlerConf ] );
-		
-		scoreBox.server = scoreBoxServer;
-				
-		scoreBoxServer.start( function() {
-			
-			logger.log( bragi.util.print( 'Hapi is listening to http://localhost:3000 ', "yellow" ) + bragi.util.symbols.success );
-			finCallback( null, {} );
-		});
 
-	}
 	
 	this.loadGameState = function( finCallback ) {
 		
 		finCallback( null );
-	} 
+	}
+	
+	this.spinUpWorkers = function( fincb ) {
+		
+		this.nerve = forkie.master( this.workers );
+
+		this.nerve.on( "worker ready", this.logIPC );
+		this.nerve.on( "worker started", this.logIPC );
+		this.nerve.on( "worker stopped", this.logIPC );
+		this.nerve.on( "worker stopped", this.logIPC );
+	}
 	
 	this.bootstrap = function(){
 		
-		var scoreBox = this;
+		var gamebox = this;
 		var bsHandler = function( err, res ) {
 			
 			if ( err )
-				bragi.log( "error:scorebox", err ); 
+				bragi.log( "error:gamebox", err ); 
 		}
 		
-		async.parallel( [ _.bind( this.setupDB, scoreBox ),
-						  _.bind( this.setupServer, scoreBox ),
-						  _.bind( this.loadGameState, scoreBox ) ],
+		async.parallel( [ _.bind( this.setupDB, gamebox ),
+						  _.bind( this.loadGameState, gamebox ),
+						  _.bind( this.spinUpWorkers, gamebox ) ],
 						bsHandler );
 	}
-	
-	///////////////////////////
-	// HTTP Request handlers
-	//////////////////////////////
-	this.flagHandler = function( request, reply ) {
 
-		var scoreBox = this;
-		
-		var flagResultHandler = function( err, results ) {
-						
-			var playerDoc = results[0],
-				flagDoc = results[1];
-
-			if ( !flagDoc ) {
-			
-				reply( "Flag not found!" ).code( 404 );
-			
-			} else if ( !playerDoc ) {
-			
-				reply( "Player not found!" ).code( 404 );
-			
-			} else {
-			
-				var thePlayer = new Player( playerDoc ),
-					theFlag = new Flag( flagDoc );
-				
-				if ( thePlayer.claims( theFlag ) ) {
-					
-					reply( theFlag ).code( 200 );
-					
-				} else {
-				
-					reply("Flag already claimed!").code( 403 );
-				}
-			}
-			
-		}
-
-		async.series( [ _.partial( repo.getPlayerByKey, scoreBox.dbClient, request.payload.playerKey ),
-						_.partial( repo.getFlagById, scoreBox.dbClient, request.payload.flagId ) ],
-					  flagResultHandler );
-	}
-	
-	this.beaconHandler = function( request, reply ) {
-
-		var scoreBox = this;
-		
-		var beaconResultHandler = function( err, results ) {
-						
-			var playerDoc = results[0];
-			
-			if ( !playerDoc ) {
-			
-				reply( "Player not found!" ).code( 404 );
-			
-			} else {
-			
-				var thePlayer = new Player( playerDoc );
-				var clientIP = request.info.remoteAddress;
-				
-				if ( thePlayer.beaconsFrom( clientIP ) ) {
-					
-					logger.log( "Beacon hit!" );
-					reply( { serverIP: clientIP,
-							 ownedByPlayer: isOwnServer,
-							 validBeacon: isValidBeacon } ).code( 200 );
-						 
-				} else {
-				
-					logger.log( "Beacon miss!" );
-					reply( "Invalid beacon!" ).code( 403 );
-					
-				}
-			}
-		}
-
-		async.series( [ _.partial( repo.getPlayerByKey, scoreBox.dbClient, request.payload.playerKey ) ],
-					  beaconResultHandler );
-		
-	}
 	
 }
 
 
-var sb = new Scorebox();
+var sb = new Gamebox();
 sb.bootstrap();
 
 module.exports = sb;
