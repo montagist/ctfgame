@@ -27,6 +27,7 @@ function Serv() {
 			logger.log( arguments );
 			fincb( null, false );	
 		} );
+
 		client.connect( sockOpts );
 	}
 }
