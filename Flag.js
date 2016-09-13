@@ -14,6 +14,13 @@ var Flag = function( info ) {
 	this.id = info._id;
 	this.claimedBy = info.claimedBy;
 	this.claimedOn = info.claimedOn;
+
+	
+	// placement options
+	this.location = "";
+	this.recurring = false;
+	this.lastPlaced = null;
+	this.placedOn = null;
 	
 	this.alreadyClaimed = function() {
 		
@@ -33,6 +40,8 @@ var Flag = function( info ) {
 		logger.log( thePlayer.id + " claimed flag " + this.id );
 		return true;
 	}
+	
+	this.place
 };
 
 Flag.prototype._schema = flagSchema;

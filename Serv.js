@@ -11,7 +11,9 @@ function Serv() {
 	this.port = "";
 	this.ip = "";
 	this.protocol = "";
-	
+	this.os = "";
+	this.flags = [];
+	this.key = null;
 	
 	this.isAlive = function( fincb ) {
 		
@@ -29,6 +31,11 @@ function Serv() {
 		} );
 
 		client.connect( sockOpts );
+	}
+	
+	this.plant = function() {
+		
+		
 	}
 }
 
