@@ -17,10 +17,12 @@
   },
   "homepage": "https://github.com/montagist/ctfgame#readme",
   "dependencies": {
+    "ansi": "^0.3.1",
     "async": "^2.0.1",
     "bragi": "^0.1.3",
     "chance": "^1.0.0",
     "colors": "^1.1.2",
+    "commander": "^2.9.0",
     "express": "^4.14.0",
     "forkie": "^1.2.8",
     "hapi": "^15.0.3",
