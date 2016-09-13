@@ -2,8 +2,8 @@ var _ = require('lodash');
 var async = require('async');
 
 var bragi = require('bragi');
-var logger = { log: _.partial( bragi.log, "gamebox" ),
-			   ipc: _.partial( bragi.log, "workers" ) };
+var logger = { log: _.partial( bragi.log, "GAMEBOX" ),
+			   ipc: _.partial( bragi.log, "WORKERS" ) };
 var forkie = require('forkie');
 var MongoClient = require('mongodb').MongoClient
 var hapi = require('hapi');
@@ -64,7 +64,6 @@ function Gamebox() {
 
 		this.nerve.on( "worker ready", this.logIPC );
 		this.nerve.on( "worker started", this.logIPC );
-		this.nerve.on( "worker stopped", this.logIPC );
 		this.nerve.on( "worker stopped", this.logIPC );
 	}
 	

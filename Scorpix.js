@@ -2,7 +2,7 @@ var _ = require('lodash');
 var async = require('async');
 
 var bragi = require('bragi');
-var logger = { log: _.partial( bragi.log, "scorpix" ) };
+var logger = { log: _.partial( bragi.log, "SCORPIX" ) };
 
 bragi.transports.get('Console').property({ showMeta: false });
 
@@ -49,12 +49,21 @@ function Scorpix() {
 								flagHandlerConf ] );
 		
 		scoreBox.server = scoreBoxServer;
-				
+		
 		scoreBoxServer.start( function() {
-			
-			logger.log( bragi.util.print( 'CTF API alive at http://localhost:' + gameConf.port, "yellow" ) + bragi.util.symbols.success );
-			fincb( null, {} );
+
+			logger.log( bragi.util.print( 'CTF API alive at http://localhost:' + gameConf.port, "yellow" ) );
+			fincb( null );
 		});
+
+		logger.log( bragi.util.print( 'For routes: ', "yellow" ) );
+
+		_.each( scoreBox.server.table()[0].table, function( route ) {
+			
+			logger.log( bragi.util.print( "[ " + route.method + " ]", "yellow" ) + "  " + bragi.util.print( route.path, "red" ) );
+		} );
+		
+
 
 	}
 	
@@ -167,5 +176,5 @@ function Scorpix() {
 }
 
 var scorp = new Scorpix();
-var scorpWorker = forkie.worker( "scorpix", { start: _.bind( scorp.bootstrap, scorp ),
+var scorpWorker = forkie.worker( "Scorpix", { start: _.bind( scorp.bootstrap, scorp ),
 											  stop: _.bind( scorp.procDown, scorp ) } );
