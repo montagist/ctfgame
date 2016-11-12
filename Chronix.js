@@ -1,6 +1,10 @@
 var _ = require('lodash');
 var forkie = require('forkie');
 
+var bragi = require('bragi');
+bragi.transports.get('Console').property({ showMeta: false });
+var logger = { log: _.partial( bragi.log, "CHRONIX" ) };
+
 ///////////////////////////////////////////
 ///	Time keeping process for CTF game
 ///////////////////////////////////////////
@@ -15,7 +19,12 @@ var forkie = require('forkie');
 //
 
 function Chronix() {
+	
+	this.registerTaskTimers = function() {
 		
+		
+	}
+	
 	this.startWorker = function( fincb ) {
 		
 		fincb( null );
@@ -23,11 +32,13 @@ function Chronix() {
 	 
 	this.stopWorker = function( fincb ) {
 		
+		logger.log( "Gracefully shutting down Chronix instance." );
+		
 		fincb( null );
 	}
 
 }
 
 var chronx = new Chronix();
-var chronWorker = forkie.worker( "chronix", { start: _.bind( chronx.startWorker, chronx ),
+var chronWorker = forkie.worker( "Chronix", { start: _.bind( chronx.startWorker, chronx ),
 											  stop: _.bind( chronx.stopWorker, chronx ) } );
