@@ -44,7 +44,6 @@ function FlagPirate() {
 		child_process.spawn( 'sh', ['-c', cmd], procOpts ).unref();
 	}
 	
-	
 	this.hideBooty = function( theFlag, theServ, fincb ) {
 		
 		var fp = this;

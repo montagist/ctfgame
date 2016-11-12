@@ -18,9 +18,12 @@ var Flag = function( info ) {
 	
 	// placement options
 	this.location = "";
+	this.placedOn = null;
+	
+	// placement timing options
 	this.recurring = false;
 	this.lastPlaced = null;
-	this.placedOn = null;
+	this.placementCycle = 0;
 	
 	this.alreadyClaimed = function() {
 		
