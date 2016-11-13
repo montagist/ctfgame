@@ -122,11 +122,11 @@ function buildBoxList( config, ipAddresses ) {
 
 function buildConfig( confLists ) {
 	
-	var vagrantTmpl = _.template( fs.readFileSync( "VagrantFile.tpl", "utf8") );
+	var vagrantTmpl = _.template( fs.readFileSync( "build/VagrantFile.tpl", "utf8") );
 	
 	fs.writeFileSync( "VagrantFile", vagrantTmpl( { boxesList: confLists.boxesList } ), 'utf8');
 	
-	var configCertauthTmpl = _.template( fs.readFileSync( "config_certauth.tpl", "utf8" ) );
+	var configCertauthTmpl = _.template( fs.readFileSync( "build/config_certauth.tpl", "utf8" ) );
 	
 	fs.writeFileSync( "config_certauth.sh", configCertauthTmpl( { playerList: confLists.playerList } ), 'utf8');
 }
